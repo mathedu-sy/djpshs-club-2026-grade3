@@ -8,14 +8,15 @@
         body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f0f2f5; color: #333; max-width: 500px; margin: 0 auto; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
         h2 { text-align: center; color: #004792; margin-top: 0; margin-bottom: 10px; }
-        .sub-title { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; display: block; }
-        label { display: block; margin-bottom: 5px; font-size: 0.95rem; color: #555; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; font-weight: bold; }
+        .sub-title { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 20px; display: block; line-height: 1.4; }
+        label { display: block; margin-bottom: 8px; font-size: 0.95rem; color: #555; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; transition: 0.3s; }
+        input:focus { border-color: #004792; outline: none; }
         button { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         button:active { opacity: 0.8; }
         button:disabled { background: #ccc !important; cursor: not-allowed; }
         .status-box { background: #e7f0ff; padding: 15px; border-radius: 10px; border: 1px solid #b3d1ff; margin-bottom: 20px; text-align: center; }
-        .cancel-btn { background: #dc3545; color:white; padding: 6px 15px; font-size: 0.9rem; margin-top: 10px; }
+        .cancel-btn { background: #dc3545; color:white; padding: 8px 15px; font-size: 0.9rem; margin-top: 10px; border-radius: 4px; }
         .list-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 2px solid #004792; margin-top: 10px; }
         .list-label { flex: 1; font-size: 1.05rem; font-weight: bold; color: #004792; }
         .mini-refresh-btn { background: #004792; color: white; padding: 6px 0; width: 70px; border-radius: 4px; font-size: 0.8rem; text-align: center; }
@@ -24,9 +25,9 @@
         .club-name { font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 3px; }
         .club-count { font-size: 0.9rem; color: #666; }
         .full { color: #dc3545; font-weight: bold; }
-        .apply-btn { width: 80px; padding: 12px 0; background: #004792; color: white; font-size: 1rem; }
-        #loading-overlay { display: none; text-align: center; color: #004792; font-weight: bold; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:1000; padding-top:50%; }
-        .timer-info { font-size: 0.85rem; color: #d63384; text-align: center; margin-bottom: 15px; font-weight: bold; cursor: pointer; }
+        .apply-btn { width: 80px; padding: 12px 0; background: #004792; color: white; font-size: 1rem; border-radius: 6px; }
+        #loading-overlay { display: none; text-align: center; color: #004792; font-weight: bold; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:1000; padding-top:60%; }
+        .timer-info { font-size: 0.85rem; color: #d63384; text-align: center; margin-bottom: 15px; font-weight: bold; cursor: pointer; background: #fff0f6; padding: 8px; border-radius: 6px; }
         .hidden { display: none; }
         .grade-badge { background: #004792; color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.8rem; vertical-align: middle; margin-right: 5px; }
     </style>
@@ -34,19 +35,18 @@
 <body>
 
     <div id="login-section" class="card">
-        <!-- 태그 오류 수정 완료 -->
         <h2><span class="grade-badge">2026학년도</span> 3학년 동아리 신청</h2>
-        <span class="sub-title">2026학년도 대전생활과학고등학교 3학년 동아리 신청 페이지 입니다. 본인 학번(4자리)과 이름을 입력하세요.</span>
+        <span class="sub-title">2026학년도 대전생활과학고등학교 3학년 동아리 신청 페이지입니다.<br>본인의 학번(4자리)과 이름을 정확히 입력해 주세요.</span>
         
         <div id="time-notice" class="timer-info" onclick="devMode()">서버 시간 확인 중...</div>
         
         <div>
-            <label><strong>학번</strong>을 입력하세요.</label>
-            <input type="number" id="studentId" placeholder="예: 3101" inputmode="numeric" oninput="vId(this)">
+            <label><strong>학번</strong> (예: 3101)</label>
+            <input type="number" id="studentId" placeholder="4자리 학번 입력" inputmode="numeric" oninput="vId(this)">
         </div>
         <div>
-            <label><strong>이름</strong>을 입력하세요.</label>
-            <input type="text" id="studentName" placeholder="예: 홍길동" oninput="vName(this)">
+            <label><strong>이름</strong> (예: 홍길동)</label>
+            <input type="text" id="studentName" placeholder="이름 입력" oninput="vName(this)">
         </div>
         <button id="login-btn" onclick="showClubs()" style="width:100%; padding:14px; background:#004792; color:white; font-size:1.1rem;">동아리 목록 보기</button>
     </div>
@@ -58,7 +58,7 @@
             <span class="list-label">동아리 명</span>
             <button class="mini-refresh-btn" onclick="renderClubs()">새로고침</button>
         </div>
-        <div id="loading-overlay">처리 중...</div>
+        <div id="loading-overlay">처리 중... 잠시만 기다려주세요.</div>
         <div id="club-list">데이터 로딩 중...</div>
         <button onclick="location.reload()" style="background:#666; width:100%; padding:14px; color:white; margin-top:20px; font-size:1rem;">로그아웃</button>
     </div>
@@ -69,7 +69,7 @@
         const CONFIG = {
             startTime: new Date("2026-03-09T10:00:00+09:00"), 
             endTime: new Date("2026-03-16T16:30:00+09:00"),
-            targetGrade: "3" // 3학년만 허용
+            targetGrade: "3"
         };
 
         const clubs = [
@@ -98,9 +98,9 @@
             clickCount++;
             clearTimeout(clickTimer);
             clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
-            if (clickCount >= 2) {
+            if (clickCount >= 3) {
                 clickCount = 0;
-                const pw = prompt("관리자 비밀번호를 입력하세요.");
+                const pw = prompt("관리자 인증이 필요합니다.");
                 if (!pw) return;
                 document.getElementById('loading-overlay').style.display = 'block';
                 try {
@@ -112,7 +112,7 @@
                     if (result.result === "success") {
                         isAdminMode = true;
                         savedAdminPw = pw;
-                        alert("🔐 관리자 인증 성공!");
+                        alert("🔐 관리자 모드 활성화");
                         document.getElementById('login-btn').style.background = "#ffc107";
                         document.getElementById('time-notice').innerText = "⭐ 관리자 권한 활성화 중";
                     } else { alert(result.message); }
@@ -125,38 +125,30 @@
             if (isAdminMode) return;
             const notice = document.getElementById('time-notice');
             const now = await getKstTime();
-            if (now < CONFIG.startTime) notice.innerText = `⚠️ 신청 기간: 3.9. 10:00 ~ 3.16. 16:30`;
+            if (now < CONFIG.startTime) notice.innerText = `⚠️ 신청 대기 (3.9. 10:00 시작)`;
             else if (now > CONFIG.endTime) notice.innerText = `❌ 신청 종료`;
             else notice.innerText = `✅ 현재 신청 가능 시간입니다.`;
         }
-        setInterval(updateTimeNotice, 10000);
+        setInterval(updateTimeNotice, 30000);
         updateTimeNotice();
 
-        function vId(el) { 
-            // 4자리까지만 입력 허용
-            if (el.value.length > 4) el.value = el.value.slice(0, 4);
-        }
+        function vId(el) { if (el.value.length > 4) el.value = el.value.slice(0, 4); }
         function vName(el) { el.value = el.value.replace(/[^ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, ''); }
 
         function showClubs() {
             const idInput = document.getElementById('studentId').value.trim();
-            const nameInput = document.getElementById('studentName').value.trim();
+            const nameInput = document.getElementById('studentName').value.replace(/\s/g, ''); // 공백 완전 제거
 
-            // 1. 4자리 입력 확인
             if (idInput.length !== 4) {
-                alert("학번은 반드시 4자리여야 합니다. (예: 3101)");
+                alert("학번 4자리를 정확히 입력해주세요.");
                 return;
             }
-
-            // 2. 3학년인지 확인 (첫 글자 추출)
             if (idInput.substring(0, 1) !== CONFIG.targetGrade) {
-                alert("3학년 학생만 신청할 수 있습니다.\n본인의 학년을 확인해 주세요.");
+                alert("3학년 학생만 신청이 가능합니다.");
                 return;
             }
-
-            // 3. 이름 입력 확인
             if (nameInput.length < 2) {
-                alert("이름을 올바르게 입력해주세요.");
+                alert("이름을 정확히 입력해주세요.");
                 return;
             }
 
@@ -178,22 +170,26 @@
                 const data = await res.json();
                 const counts = data.counts || {};
                 const myClub = data.records[studentInfo.id];
+                
                 statusBox.classList.remove('hidden');
                 statusBox.innerHTML = myClub 
-                    ? `<div>👋 <b>${studentInfo.name}</b>님 신청 완료: <b>[${myClub}]</b></div><button class="cancel-btn" onclick="cancelApply()">신청 취소</button>`
+                    ? `<div>👋 <b>${studentInfo.name}</b>님: <b>[${myClub}]</b> 신청 완료</div><button class="cancel-btn" onclick="cancelApply()">신청 취소하기</button>`
                     : `<div>👋 <b>${studentInfo.name}(${studentInfo.id})</b>님, 환영합니다!</div>`;
+                
                 listDiv.innerHTML = '';
                 const now = await getKstTime();
+                
                 clubs.forEach(club => {
                     const count = counts[club.name] || 0;
                     const isFull = count >= club.limit;
                     const isDisabled = (!isAdminMode && (now < CONFIG.startTime || now > CONFIG.endTime || isFull || myClub));
+                    
                     const item = document.createElement('div');
                     item.className = 'club-item';
                     item.innerHTML = `
                         <div class="club-info">
                             <span class="club-name">${club.name}</span>
-                            <span class="club-count ${isFull ? 'full' : ''}">${count}/${club.limit}명</span>
+                            <span class="club-count ${isFull ? 'full' : ''}">${count} / ${club.limit}명</span>
                         </div>
                         <button class="apply-btn" onclick="askPwAndSub('${club.name}', ${club.limit})" ${isDisabled ? 'disabled' : ''}>
                             ${isFull ? '마감' : '신청'}
@@ -201,13 +197,16 @@
                     `;
                     listDiv.appendChild(item);
                 });
-            } catch(e) { listDiv.innerHTML = '데이터 로딩 오류'; }
+            } catch(e) { listDiv.innerHTML = '데이터 로딩 중 오류가 발생했습니다.'; }
             finally { loader.style.display = 'none'; }
         }
 
         async function askPwAndSub(clubName, limit) {
-            const pw = prompt(`[${clubName}] 신청 비밀번호(숫자 4자)를 설정하세요.\n취소 시 필요합니다.`);
-            if (!pw || !/^\d{4}$/.test(pw)) return alert("숫자 4자를 입력하세요.");
+            if (!confirm(`[${clubName}] 동아리에 신청하시겠습니까?`)) return;
+
+            const pw = prompt(`신청 비밀번호(숫자 4자)를 설정하세요.\n(신청 취소 시 본인 확인을 위해 필요합니다)`);
+            if (!pw || !/^\d{4}$/.test(pw)) return alert("비밀번호는 숫자 4자로 입력해야 합니다.");
+            
             await sendData({ 
                 studentId: studentInfo.id, name: studentInfo.name, password: pw, 
                 clubName: clubName, clubLimit: limit, isAdmin: isAdminMode, adminPw: savedAdminPw 
@@ -215,8 +214,12 @@
         }
 
         async function cancelApply() {
-            const pw = prompt("신청 시 설정한 비밀번호 4자를 입력하세요.");
-            if (pw) await sendData({ action: "delete", studentId: studentInfo.id, password: pw });
+            const pw = prompt("신청 시 설정했던 비밀번호 4자를 입력하세요.");
+            if (pw) {
+                if(confirm("정말로 신청을 취소하시겠습니까?")) {
+                    await sendData({ action: "delete", studentId: studentInfo.id, password: pw });
+                }
+            }
         }
 
         async function sendData(payload) {
@@ -226,7 +229,7 @@
                 const result = await res.json();
                 alert(result.message);
                 renderClubs();
-            } catch (e) { alert("연결 오류"); }
+            } catch (e) { alert("연결 오류가 발생했습니다. 네트워크를 확인해주세요."); }
             finally { document.getElementById('loading-overlay').style.display = 'none'; }
         }
     </script>
