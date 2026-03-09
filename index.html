@@ -148,9 +148,13 @@
             const notice = document.getElementById('time-notice');
             const now = await getKstTime();
             /* [수정] 신청 안내 문구 날짜 형식 변경 */
-            if (now < CONFIG.startTime) notice.innerText = `⚠️ 신청 기간: 3월 16일(월) 16:00 ~ 16:30`;
-            else if (now > CONFIG.endTime) notice.innerText = `❌ 신청 종료`;
-            else notice.innerText = `✅ 현재 신청 가능 시간입니다.`;
+            if (now < CONFIG.startTime) {
+                notice.innerText = `⚠️ 신청 기간: 3.9. 10:00 ~ 3.16. 16:30`;
+            } else if (now > CONFIG.endTime) {
+                notice.innerText = `❌ 신청 종료`;
+            } else {
+                notice.innerText = `✅ 현재 신청 가능 시간입니다.`;
+            }
         }
         setInterval(updateTimeNotice, 10000);
         updateTimeNotice();
@@ -233,4 +237,5 @@
     </script>
 </body>
 </html>
+
 
