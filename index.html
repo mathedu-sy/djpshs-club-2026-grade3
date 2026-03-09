@@ -11,24 +11,24 @@
         label { display: block; margin-bottom: 5px; font-size: 0.95rem; color: #555; }
         label strong { color: #004792; font-weight: bold; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; font-weight: bold; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
         button { width: 100%; padding: 14px; background: #004792; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
         button:disabled { background: #ccc; cursor: not-allowed; }
         .status-box { background: #e7f0ff; padding: 15px; border-radius: 10px; border: 1px solid #b3d1ff; margin-bottom: 20px; text-align: center; line-height: 1.6; }
         .cancel-btn { background: #dc3545; width: auto; padding: 6px 15px; font-size: 0.9rem; margin-top: 10px; border-radius: 4px; color:white; border:none; cursor:pointer; font-weight:bold; }
         .club-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 15px 0; }
-        .club-item:last-child { border-bottom: none; }
         .hidden { display: none; }
-        .status-text { font-size: 0.9rem; color: #666; }
         .full { color: #dc3545; font-weight: bold; }
-        #loading-overlay { display: none; text-align: center; color: #004792; font-weight: bold; padding: 10px; }
+        #loading-overlay { display: none; text-align: center; color: #004792; font-weight: bold; padding: 10px; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:1000; padding-top:50%; }
+        /* 클릭 가능하다는 것을 알리기 위해 cursor 추가 */
+        .timer-info { font-size: 0.85rem; color: #d63384; text-align: center; margin-bottom: 10px; font-weight: bold; cursor: pointer; user-select: none; }
     </style>
 </head>
 <body>
 
     <div id="login-section" class="card">
         <h2>학생 인증</h2>
+        <!-- 신청 기간 문구에 클릭 이벤트 추가 (2번 클릭 시 관리자 모드) -->
+        <div id="time-notice" class="timer-info" onclick="devMode()">서버 시간 확인 중...</div>
         <div>
             <label for="studentId"><strong>학번</strong>을 입력하세요.</label>
             <input type="number" id="studentId" placeholder="예: 3101" inputmode="numeric" oninput="vId(this)">
@@ -37,22 +37,26 @@
             <label for="studentName"><strong>이름</strong>을 입력하세요.</label>
             <input type="text" id="studentName" placeholder="예: 홍길동" oninput="vName(this)">
         </div>
-        <button onclick="showClubs()">동아리 목록 보기</button>
+        <button id="login-btn" onclick="showClubs()">동아리 목록 보기</button>
     </div>
 
     <div id="club-section" class="card hidden">
         <h2>동아리 신청/확인</h2>
         <div id="my-status" class="status-box hidden"></div>
-        <div id="loading-overlay">처리 중... 잠시만 기다리세요.</div>
+        <div id="loading-overlay">처리 중...<br>잠시만 기다리세요.</div>
         <div id="club-list">데이터 로딩 중...</div>
         <button onclick="location.reload()" style="background:#666; margin-top:20px;">로그아웃</button>
     </div>
 
     <script>
-        // [1] 배포한 URL을 여기에 넣으세요.
+        // 중요: 본인의 Apps Script 배포 URL을 아래에 넣으세요.
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxlXreXZJFHZdzaf1oUTp0Sel3xSe5t28bFV2EgBA7ykjXJqQQzdBmjdkkqwPwuUVipdg/exec";
 
-        // [2] 동아리와 정원은 여기서만 수정하면 됩니다!
+        const CONFIG = {
+            startTime: new Date("2026-03-16T16:00:00+09:00"), 
+            endTime: new Date("2026-03-20T16:30:00+09:00")
+        };
+
         const clubs = [
             { name: "영상 제작부", limit: 15 },
             { name: "농구부", limit: 10 },
@@ -62,6 +66,69 @@
         ];
 
         let studentInfo = { id: '', name: '' };
+        let isAdminMode = false;
+        let savedAdminPw = "";
+        let clickCount = 0;
+        let clickTimer;
+
+        async function getKstTime() {
+            try {
+                const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Seoul');
+                const data = await res.json();
+                return new Date(data.datetime);
+            } catch (e) { return new Date(); }
+        }
+
+        // 관리자 모드 진입 함수 (2번 연속 클릭 시 발동)
+        async function devMode() {
+            clickCount++;
+            
+            // 2초 내에 두 번 클릭하지 않으면 횟수 초기화
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+
+            if (clickCount >= 2) {
+                clickCount = 0;
+                const pw = prompt("관리자 비밀번호를 입력하세요.");
+                if (!pw) return;
+                
+                document.getElementById('loading-overlay').style.display = 'block';
+                try {
+                    const res = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: "authAdmin", password: pw })
+                    });
+                    const result = await res.json();
+                    if (result.result === "success") {
+                        isAdminMode = true;
+                        savedAdminPw = pw;
+                        alert("🔐 관리자 인증 성공! 시간/인원 제한 없이 신청 가능합니다.");
+                        
+                        // 관리자 UI 변경
+                        const btn = document.getElementById('login-btn');
+                        btn.style.background = "#ffc107";
+                        btn.style.color = "#000";
+                        btn.innerText = "관리자 모드 입장";
+                        document.getElementById('time-notice').innerText = "⭐ 관리자 권한 활성화 중";
+                        document.getElementById('time-notice').style.color = "#ffc107";
+                    } else { alert(result.message); }
+                } catch (e) { alert("연결 오류: 배포 URL을 확인하세요."); }
+                finally {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }
+            }
+        }
+
+        async function updateTimeNotice() {
+            if (isAdminMode) return; // 관리자 모드면 문구 고정
+            const notice = document.getElementById('time-notice');
+            const now = await getKstTime();
+            if (now < CONFIG.startTime) notice.innerText = `⚠️ 신청 기간: 2026년 3월 16일 16:00~16:30`;
+            else if (now > CONFIG.endTime) notice.innerText = `❌ 신청 종료`;
+            else notice.innerText = `✅ 현재 신청 가능 시간입니다.`;
+        }
+        setInterval(updateTimeNotice, 10000);
+        updateTimeNotice();
 
         function vId(el) { el.value = el.value.replace(/[^0-9]/g, '').slice(0, 4); }
         function vName(el) { el.value = el.value.replace(/[^ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, ''); }
@@ -84,58 +151,55 @@
                 const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
                 const counts = data.counts || {};
-                const records = data.records || {};
-                const myClub = records[studentInfo.id];
+                const myClub = data.records[studentInfo.id];
 
                 statusBox.classList.remove('hidden');
-                if (myClub) {
-                    statusBox.innerHTML = `<div>👋 <b>${studentInfo.name}</b>님 현재 신청:<br><b style="color:#004792; font-size:1.2rem;">[${myClub}]</b></div>
-                        <button class="cancel-btn" onclick="cancelApply()">신청 취소하기</button>`;
-                } else {
-                    statusBox.innerHTML = `<div>👋 <b>${studentInfo.name}(${studentInfo.id})</b>님,<br>원하는 동아리를 선택해 주세요.</div>`;
-                }
+                statusBox.innerHTML = myClub 
+                    ? `<div>👋 <b>${studentInfo.name}</b>님 현재 신청:<br><b>[${myClub}]</b></div><button class="cancel-btn" onclick="cancelApply()">신청 취소</button>`
+                    : `<div>👋 <b>${studentInfo.name}(${studentInfo.id})</b>님, 동아리를 선택하세요.</div>`;
 
                 listDiv.innerHTML = '';
+                const now = await getKstTime();
+
                 clubs.forEach(club => {
                     const count = counts[club.name] || 0;
                     const isFull = count >= club.limit;
-                    const alreadyApplied = myClub !== undefined;
+                    const isDisabled = (!isAdminMode && (now < CONFIG.startTime || now > CONFIG.endTime || isFull || myClub));
+                    
                     const item = document.createElement('div');
                     item.className = 'club-item';
                     item.innerHTML = `
-                        <div>
-                            <strong>${club.name}</strong><br>
-                            <span class="status-text ${isFull ? 'full' : ''}">${count} / ${club.limit}명</span>
-                        </div>
-                        <button onclick="askPwAndSub('${club.name}', ${club.limit})" ${(isFull || alreadyApplied) ? 'disabled' : ''} style="width:80px; padding:8px;">
-                            ${isFull ? '마감' : (alreadyApplied ? '신청완료' : '신청')}
-                        </button>
+                        <div><strong>${club.name}</strong><br><span class="${isFull ? 'full' : ''}">${count}/${club.limit}명</span></div>
+                        <button onclick="askPwAndSub('${club.name}', ${club.limit})" ${isDisabled ? 'disabled' : ''} style="width:80px;">신청</button>
                     `;
                     listDiv.appendChild(item);
                 });
-            } catch(e) { listDiv.innerHTML = '<p>데이터 로딩 실패</p>'; }
+            } catch(e) { listDiv.innerHTML = '데이터 로딩 오류 (URL 확인 필요)'; }
         }
 
         async function askPwAndSub(clubName, limit) {
-            const pw = prompt(`[${clubName}] 신청 비밀번호 4자리를 설정하세요 (숫자만)`);
-            if (!pw || !/^\d{4}$/.test(pw)) { alert("숫자 4자리를 입력해야 합니다."); return; }
-            await sendData({ studentId: studentInfo.id, name: studentInfo.name, password: pw, clubName: clubName, clubLimit: limit });
+            const pw = prompt(`[${clubName}] 신청용 비번(숫자 4자)을 설정하세요.`);
+            if (!pw || !/^\d{4}$/.test(pw)) return alert("숫자 4자를 입력하세요.");
+            
+            await sendData({ 
+                studentId: studentInfo.id, name: studentInfo.name, password: pw, 
+                clubName: clubName, clubLimit: limit, isAdmin: isAdminMode, adminPw: savedAdminPw 
+            });
         }
 
         async function cancelApply() {
-            const pw = prompt("신청 시 설정한 비밀번호 4자리를 입력하세요.");
-            if (!pw) return;
-            await sendData({ action: "delete", studentId: studentInfo.id, password: pw });
+            const pw = prompt("신청 시 설정한 비번을 입력하세요.");
+            if (pw) await sendData({ action: "delete", studentId: studentInfo.id, password: pw });
         }
 
         async function sendData(payload) {
             document.getElementById('loading-overlay').style.display = 'block';
             try {
-                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
+                const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await res.json();
                 alert(result.message);
                 renderClubs();
-            } catch (e) { alert("통신 오류 발생"); }
+            } catch (e) { alert("연결 오류"); }
             finally { document.getElementById('loading-overlay').style.display = 'none'; }
         }
     </script>
