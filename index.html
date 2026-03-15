@@ -29,7 +29,7 @@
         .club-details { font-size: 0.85rem; color: #777; margin-bottom: 4px; line-height: 1.4; }
         .club-count { font-size: 0.9rem; color: #666; font-weight: bold; }
         .full { color: #dc3545; font-weight: bold; }
-        .apply-btn { width: 80px; padding: 12px 0; background: #004792; color: white; font-size: 1rem; border-radius: 6px; margin-left: 10px; }
+        .apply-btn { width: 85px; padding: 12px 0; background: #004792; color: white; font-size: 0.9rem; border-radius: 6px; margin-left: 10px; }
         #loading-overlay { display: none; text-align: center; color: #004792; font-weight: bold; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:1000; padding-top:60%; }
         .timer-info { font-size: 0.85rem; color: #d63384; text-align: center; margin-bottom: 15px; font-weight: bold; cursor: pointer; background: #fff0f6; padding: 8px; border-radius: 6px; }
         .hidden { display: none; }
@@ -44,12 +44,10 @@
         <div id="time-notice" class="timer-info" onclick="devMode()">서버 시간 확인 중...</div>
         <div>
             <label><strong>학번</strong> (예: 3101)</label>
-            <!-- 숫자만 입력 가능하도록 설정 -->
             <input type="text" id="studentId" placeholder="4자리 학번 입력" inputmode="numeric" oninput="vId(this)">
         </div>
         <div>
             <label><strong>이름</strong> (예: 홍길동)</label>
-            <!-- 한글만 입력 가능하도록 설정 -->
             <input type="text" id="studentName" placeholder="이름 입력" oninput="vName(this)">
         </div>
         <button id="login-btn" onclick="showClubs()" style="width:100%; padding:14px; background:#004792; color:white; font-size:1.1rem;">동아리 목록 보기</button>
@@ -72,11 +70,10 @@
     </div>
 
     <script>
-        // 본인의 구글 앱스 스크립트 배포 URL을 여기에 넣으세요.
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxlXreXZJFHZdzaf1oUTp0Sel3xSe5t28bFV2EgBA7ykjXJqQQzdBmjdkkqwPwuUVipdg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxlXreXZJFHZdzaf1oUTp0Sel3xSe5t28bFV2EgBA7ykjXJqQQzdBmjdkkqwPwuUVipdg/exec"; 
 
         const CONFIG = {
-            startTime: new Date("2026-03-09T10:00:00+09:00"), 
+            startTime: new Date("2026-03-16T16:00:00+09:00"), 
             endTime: new Date("2026-03-16T16:30:00+09:00"),
             targetGrade: "3"
         };
@@ -84,56 +81,64 @@
         const clubs = [
             { name: "가치 잇는 공방", limit: 5, type: 'general', teacher: "민규현", note: "" },
             { name: "농구반", limit: 5, type: 'general', teacher: "이준", note: "" },
-            { name: "당구반", limit: 5, type: 'general', teacher: "김지검", note: "1회 500원" },
-            { name: "댄스부", limit: 5, type: 'general', teacher: "박지수", note: "" },
+            { name: "당구반", limit: 5, type: 'general', teacher: "김지검", note: "1회 5,000원" },
+            { name: "디바인그루브", limit: 0, type: 'general', teacher: "박지수", note: "" },
             { name: "뜨개하는 과학자들", limit: 5, type: 'general', teacher: "구인숙", note: "" },
             { name: "면접 터치반", limit: 5, type: 'general', teacher: "권해련", note: "" },
-            { name: "배드민턴 2반", limit: 5, type: 'general', teacher: "김용욱", note: "" },
-            { name: "밴드부", limit: 5, type: 'general', teacher: "주혜영", note: "" },
+            { name: "배드민턴 2반", limit: 5, type: 'general', teacher: "황기하", note: "" },
+            { name: "밴드부", limit: 0, type: 'general', teacher: "주혜영", note: "" },
             { name: "보드게임반", limit: 5, type: 'general', teacher: "노상균", note: "" },
             { name: "수학 전략 탐구반", limit: 5, type: 'general', teacher: "박수영", note: "" },
             { name: "숨은 작가 찾기", limit: 5, type: 'general', teacher: "오지현", note: "매시간 작품 창작 제출" },
             { name: "아트스튜디오", limit: 5, type: 'general', teacher: "박지수", note: "" },
-            { name: "야구부", limit: 5, type: 'general', teacher: "박준우", note: "개인글러브 지참" },
+            { name: "야구부", limit: 5, type: 'general', teacher: "박준우", note: "개인글러브 지참, 스크린야구 5,000원" },
             { name: "언어의 힘", limit: 5, type: 'general', teacher: "이근형", note: "" },
             { name: "역사탐구반", limit: 5, type: 'general', teacher: "정덕용", note: "" },
             { name: "영어 스토리 동아리", limit: 5, type: 'general', teacher: "추송아", note: "" },
             { name: "요리조리 연구소", limit: 5, type: 'general', teacher: "조지혜", note: "" },
             { name: "중국문화탐구", limit: 5, type: 'general', teacher: "왕서방", note: "" },
-            { name: "치어리딩부", limit: 5, type: 'general', teacher: "최민경", note: "" },
             { name: "캘리그라피", limit: 5, type: 'general', teacher: "박선희", note: "" },
+            { name: "피어리스", limit: 0, type: 'general', teacher: "최민경", note: "" },
             { name: "핏 업", limit: 5, type: 'general', teacher: "정수미", note: "1회 4,000원" },
             { name: "해병대부사관", limit: 5, type: 'general', teacher: "박영관", note: "" },
             
-            { name: "수처리반", limit: 5, type: 'major', teacher: "변영욱", dept: "바이오제약과" },
-            { name: "생활의약품", limit: 5, type: 'major', teacher: "이정식", dept: "바이오제약과" },
-            { name: "DIY가구제작반", limit: 5, type: 'major', teacher: "유찬빈", dept: "바이오플랜트과" },
-            { name: "창호 메이커스", limit: 5, type: 'major', teacher: "김윤기", dept: "바이오플랜트과" },
-            { name: "전기코딩반", limit: 5, type: 'major', teacher: "이상권", dept: "바이오의료전기과" },
-            { name: "3D 모델링 설계", limit: 5, type: 'major', teacher: "전우찬", dept: "바이오의료전기과" },
-            { name: "HACCP가공", limit: 5, type: 'major', teacher: "이희우", dept: "헬스푸드과" },
-            { name: "조리과학", limit: 5, type: 'major', teacher: "백영신", dept: "헬스푸드과" },
-            { name: "코스메틱LAB", limit: 5, type: 'major', teacher: "양지혜", dept: "헬스뷰티과" },
-            { name: "헤어기능반", limit: 5, type: 'major', teacher: "백서윤", dept: "헬스뷰티과" },
-            { name: "피부기능반", limit: 5, type: 'major', teacher: "김은빛", dept: "헬스뷰티과" }
+            { name: "수처리반", limit: 5, type: 'major', teacher: "변영욱", dept: "바이오케미컬과" },
+            { name: "생활의약품", limit: 5, type: 'major', teacher: "이정식", dept: "바이오케미컬과" },
+            { name: "전기코딩반", limit: 5, type: 'major', teacher: "이상권", dept: "철도전기신호과" },
+            { name: "3D 모델링 설계", limit: 5, type: 'major', teacher: "전우찬", dept: "철도전기신호과" },
+            { name: "DIY가구제작반", limit: 5, type: 'major', teacher: "유찬빈", dept: "철도건축시설과" },
+            { name: "창호 메이커스", limit: 5, type: 'major', teacher: "김윤기", dept: "철도건축시설과" },
+            { name: "발효창작공방", limit: 0, type: 'major', teacher: "이희우", dept: "조리제빵과" },
+            { name: "조리과학", limit: 0, type: 'major', teacher: "백영신", dept: "조리제빵과" },
+            { name: "코스메틱LAB", limit: 5, type: 'major', teacher: "양지혜", dept: "토털뷰티과" },
+            { name: "헤어기능반", limit: 0, type: 'major', teacher: "백서윤", dept: "토털뷰티과" },
+            { name: "피부기능반", limit: 0, type: 'major', teacher: "김은빛", dept: "토털뷰티과" }
         ];
 
         let currentTab = 'general';
-        let studentInfo = { id: '', name: '' };
+        let studentInfo = { id: '', name: '', dept: '' };
         let isAdminMode = false;
         let savedAdminPw = "";
         let clickCount = 0;
         let clickTimer;
 
-        // 학번: 숫자만 4자리 입력 제한
+        function getDeptByClass(id) {
+            const classNum = parseInt(id.substring(1, 2));
+            if (classNum === 1) return "바이오케미컬과";
+            if (classNum === 2 || classNum === 3) return "철도전기신호과";
+            if (classNum === 4 || classNum === 5) return "철도건축시설과";
+            if (classNum === 6 || classNum === 7) return "조리제빵과";
+            if (classNum === 8 || classNum === 9) return "토털뷰티과";
+            return "미확인";
+        }
+
         function vId(el) {
-            el.value = el.value.replace(/[^0-9]/g, ''); // 숫자 이외 제거
+            el.value = el.value.replace(/[^0-9]/g, '');
             if (el.value.length > 4) el.value = el.value.slice(0, 4);
         }
 
-        // 이름: 한글만 입력 제한
         function vName(el) {
-            el.value = el.value.replace(/[^ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, ''); // 한글 이외 제거
+            el.value = el.value.replace(/[^ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g, '');
         }
 
         function switchTab(tab) {
@@ -183,7 +188,7 @@
             if (isAdminMode) return;
             const notice = document.getElementById('time-notice');
             const now = await getKstTime();
-            if (now < CONFIG.startTime) notice.innerText = `⚠️ 신청 대기 (3.9. 10:00 시작)`;
+            if (now < CONFIG.startTime) notice.innerText = `⚠️ 신청 대기: 3월 16일(월) 16:00 시작`;
             else if (now > CONFIG.endTime) notice.innerText = `❌ 신청 종료`;
             else notice.innerText = `✅ 현재 신청 가능 시간입니다.`;
         }
@@ -196,8 +201,16 @@
             if (idInput.length !== 4) { alert("학번 4자리를 정확히 입력해주세요."); return; }
             if (idInput.substring(0, 1) !== CONFIG.targetGrade) { alert("3학년 학생만 신청이 가능합니다."); return; }
             if (nameInput.length < 2) { alert("이름을 정확히 입력해주세요."); return; }
+            
             studentInfo.id = idInput;
             studentInfo.name = nameInput;
+            studentInfo.dept = getDeptByClass(idInput);
+
+            if (studentInfo.dept === "미확인") {
+                alert("학번을 다시 확인해주세요. (반 정보 오류)");
+                return;
+            }
+
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('club-section').classList.remove('hidden');
             renderClubs();
@@ -212,25 +225,24 @@
                 const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
                 const counts = data.counts || {};
-                
                 const myClub = data.records[studentInfo.id];
-                // 서버에서 'details' 객체로 비밀번호 유무를 보내준다고 가정
                 const myDetail = data.details ? data.details[studentInfo.id] : null; 
                 
                 statusBox.classList.remove('hidden');
                 
                 if (myClub) {
-                    // 비밀번호 정보가 없으면 선생님이 엑셀에 직접 타이핑한 데이터로 간주
-                    const isAssignedByTeacher = !myDetail || !myDetail.pw; 
-                    
-                    if (isAssignedByTeacher) {
+                    // 비밀번호가 적혀 있는지 체크 (Apps Script에서 password 키로 보냄)
+                    const isStudentApplied = myDetail && myDetail.password && String(myDetail.password).trim() !== "";
+
+                    if (isStudentApplied) {
                         statusBox.innerHTML = `
-                            <div>👋 <b>${studentInfo.name}</b>님: <b>[${myClub}]</b>에 배정되었습니다.</div>
+                            <div>👋 <b>${studentInfo.name}(${studentInfo.id})</b>님,<br><b>[${myClub}]</b> 신청 완료</div>
+                            <button class="cancel-btn" onclick="cancelApply()">신청 취소하기</button>
                         `;
                     } else {
                         statusBox.innerHTML = `
-                            <div>👋 <b>${studentInfo.name}</b>님: <b>[${myClub}]</b> 신청 완료</div>
-                            <button class="cancel-btn" onclick="cancelApply()">신청 취소하기</button>
+                            <div>👋 <b>${studentInfo.name}(${studentInfo.id})</b>님<br><b>[${myClub}]</b>에 배정되었습니다.</div>
+                            <p style="font-size:0.85rem; color:#dc3545; margin-top:8px; font-weight:bold;">⚠️ 관리자 배정 건은 직접 취소가 불가합니다.</p>
                         `;
                     }
                 } else {
@@ -244,7 +256,9 @@
                 filteredClubs.forEach((club) => {
                     const count = counts[club.name] || 0;
                     const isFull = count >= club.limit;
-                    const isDisabled = (!isAdminMode && (now < CONFIG.startTime || now > CONFIG.endTime || isFull || myClub));
+                    const isWrongDept = club.type === 'major' && club.dept !== studentInfo.dept;
+                    const isDisabled = (!isAdminMode && (now > CONFIG.endTime || isFull || myClub || isWrongDept));
+                    
                     const item = document.createElement('div');
                     item.className = 'club-item';
                     item.innerHTML = `
@@ -260,7 +274,7 @@
                             <span class="club-count ${isFull ? 'full' : ''}">${count} / ${club.limit}명</span>
                         </div>
                         <button class="apply-btn" onclick="askPwAndSub(${JSON.stringify(club).replace(/"/g, '&quot;')})" ${isDisabled ? 'disabled' : ''}>
-                            ${isFull ? '마감' : '신청'}
+                            ${isWrongDept ? '학과불일치' : (isFull ? '마감' : '신청')}
                         </button>
                     `;
                     listDiv.appendChild(item);
@@ -269,30 +283,40 @@
             finally { loader.style.display = 'none'; }
         }
 
-        async function askPwAndSub(club) {
+            async function askPwAndSub(club) {
+            const now = await getKstTime();
+            
+            if (!isAdminMode) {
+                if (now < CONFIG.startTime) {
+                    alert("아직 신청 기간이 아닙니다.\n신청 시작 시간: 3월 16일(월) 16:00");
+                    return;
+                }
+                if (now > CONFIG.endTime) {
+                    alert("신청 기간이 이미 종료되었습니다.");
+                    return;
+                }
+            }
+
+            if (!isAdminMode && club.type === 'major' && club.dept !== studentInfo.dept) {
+                alert(`해당 동아리는 ${club.dept} 학생만 신청 가능합니다.`);
+                return;
+            }
+
             let message = `[${club.name}] 동아리에 신청하시겠습니까?`;
             if (club.type === 'major') {
-                message += `\n----------------------------------------\n📢 해당 동아리는 '${club.dept}' 전공 동아리입니다.\n본인 전공과 다를 시 취소될 수 있으니,\n전공을 반드시 확인하시고 신청하시기 바랍니다.\n----------------------------------------`;
+                message += `\n\n📢 본인 전공(${studentInfo.dept}) 동아리가 맞는지 최종 확인 바랍니다.`;
             }
             if (!confirm(message)) return;
 
             let pw = "";
-
-            // 관리자 모드가 아닐 때만 비밀번호를 물어봅니다.
             if (!isAdminMode) {
                 pw = prompt(`신청 비밀번호(숫자 4자)를 설정하세요.\n(신청 취소 시 본인 확인을 위해 필요합니다)`);
-                // 1. [취소] 버튼을 눌렀을 때는 아무 메시지 없이 중단 (학생이 창을 닫은 경우)
                 if (pw === null) return; 
                 pw = pw.trim();
-
-                // 2. 아무것도 안 쓰고 [확인]을 눌렀거나, 숫자 4자리가 아닌 경우 경고
                 if (pw === "" || !/^[0-9]{4}$/.test(pw)) {
                     alert("비밀번호는 숫자 4자리로 입력해야 신청이 완료됩니다.");
                     return;
                 }
-            } else {
-                // 관리자 모드일 때는 비밀번호를 빈칸("")으로 자동 설정
-                pw = ""; 
             }
 
             await sendData({ 
@@ -308,10 +332,9 @@
 
         async function cancelApply() {
             const pw = prompt("신청 시 설정했던 비밀번호 4자를 입력하세요.");
-            if (pw) {
-                if(confirm("정말로 신청을 취소하시겠습니까?")) {
-                    await sendData({ action: "delete", studentId: studentInfo.id, password: pw });
-                }
+            if (!pw) return;
+            if(confirm("정말로 신청을 취소하시겠습니까?")) {
+                await sendData({ action: "delete", studentId: studentInfo.id, password: pw });
             }
         }
 
